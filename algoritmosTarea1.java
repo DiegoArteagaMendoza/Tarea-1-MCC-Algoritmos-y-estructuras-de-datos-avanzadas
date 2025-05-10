@@ -3,7 +3,7 @@ import java.util.*;
 public class algoritmosTarea1 {
     public static void main(String[] args) {
         int[] tamaños = { 100000, 500000, 1000000, 1500000, 2000000 };
-        String modo = "pocas"; // Puedes cambiar a "muchas" si quieres
+        String modo = "muchas"; // Puedes cambiar a "muchas" si quieres
 
         for (int size : tamaños) {
             int[] arreglo1 = generarArreglo(size, modo);
@@ -11,12 +11,13 @@ public class algoritmosTarea1 {
             int[] arreglo2Desc = arreglo1.clone();
             int[] arreglo3 = arreglo1.clone();
 
+            System.out.println("\n\n=================================");
             System.out.println("Porte del arreglo: " + size);
             System.out.println("=================================");
 
-            System.out.println("Algoritmo 1");
-            ALG1.ejecutar(arreglo1);
-            System.out.println("---------------------------------");
+            // System.out.println("Algoritmo 1");
+            // ALG1.ejecutar(arreglo1);
+            // System.out.println("---------------------------------");
 
             System.out.println("Algoritmo 2");
             System.out.println("ascendente");
@@ -58,7 +59,8 @@ class ALG1 {
         for (int i = 0; i < A.length; i++) {
             int frecuencia = 1;
             for (int j = i + 1; j < A.length; j++) {
-                if (A[i] == A[j]) frecuencia++;
+                if (A[i] == A[j])
+                    frecuencia++;
             }
             if (frecuencia > frecuenciaMax || (frecuencia == frecuenciaMax && A[i] < moda)) {
                 frecuenciaMax = frecuencia;
@@ -99,8 +101,8 @@ class ALG2 {
             if (ordenado[i] == ordenado[i - 1]) {
                 frecuenciaActual++;
             } else {
-                if (frecuenciaActual > frecuenciaMax || 
-                   (frecuenciaActual == frecuenciaMax && ordenado[i - 1] < moda)) {
+                if (frecuenciaActual > frecuenciaMax ||
+                        (frecuenciaActual == frecuenciaMax && ordenado[i - 1] < moda)) {
                     frecuenciaMax = frecuenciaActual;
                     moda = ordenado[i - 1];
                 }
@@ -108,8 +110,8 @@ class ALG2 {
             }
         }
 
-        if (frecuenciaActual > frecuenciaMax || 
-           (frecuenciaActual == frecuenciaMax && ordenado[ordenado.length - 1] < moda)) {
+        if (frecuenciaActual > frecuenciaMax ||
+                (frecuenciaActual == frecuenciaMax && ordenado[ordenado.length - 1] < moda)) {
             moda = ordenado[ordenado.length - 1];
         }
 
@@ -128,6 +130,7 @@ class ALG3 {
     static class Rango {
         int[] arreglo;
         int inicio, fin;
+
         Rango(int[] arreglo, int inicio, int fin) {
             this.arreglo = arreglo;
             this.inicio = inicio;
@@ -139,18 +142,22 @@ class ALG3 {
         }
 
         int valor() {
-            return arreglo[inicio]; // todos son iguales
+            return arreglo[inicio];
         }
     }
 
     public static int moda(int[] A) {
-        PriorityQueue<Rango> heterog = new PriorityQueue<>((a, b) -> b.length() - a.length());
+        Queue<Rango> heterog = new LinkedList<>();
         List<Rango> homog = new ArrayList<>();
-
         heterog.add(new Rango(A, 0, A.length - 1));
+        int maxHomogLen = 0;
 
         while (!heterog.isEmpty()) {
             Rango actual = heterog.poll();
+
+            if (actual.length() <= maxHomogLen) {
+                continue;
+            }
 
             int mediana = medianOfMedians(actual.arreglo, actual.inicio, actual.fin);
             int low = actual.inicio, high = actual.fin;
@@ -167,8 +174,13 @@ class ALG3 {
                 }
             }
 
-            if ((gt - lt + 1) > 0) {
-                homog.add(new Rango(actual.arreglo, lt, gt));
+            int igualesLen = gt - lt + 1;
+            if (igualesLen > 0) {
+                Rango iguales = new Rango(actual.arreglo, lt, gt);
+                homog.add(iguales);
+                if (igualesLen > maxHomogLen) {
+                    maxHomogLen = igualesLen;
+                }
             }
 
             if (lt > actual.inicio) {
@@ -179,20 +191,20 @@ class ALG3 {
             }
         }
 
-        // Comparar frecuencias reales entre todos los grupos homogéneos
+        // Evaluar moda final
         Map<Integer, Integer> frecuencias = new HashMap<>();
         for (Rango r : homog) {
-            int valor = r.valor();
-            frecuencias.put(valor, frecuencias.getOrDefault(valor, 0) + r.length());
+            int val = r.valor();
+            frecuencias.put(val, frecuencias.getOrDefault(val, 0) + r.length());
         }
 
-        int moda = -1, maxFrecuencia = -1;
+        int moda = -1, maxFreq = -1;
         for (Map.Entry<Integer, Integer> entry : frecuencias.entrySet()) {
-            int valor = entry.getKey();
+            int val = entry.getKey();
             int freq = entry.getValue();
-            if (freq > maxFrecuencia || (freq == maxFrecuencia && valor < moda)) {
-                maxFrecuencia = freq;
-                moda = valor;
+            if (freq > maxFreq || (freq == maxFreq && val < moda)) {
+                moda = val;
+                maxFreq = freq;
             }
         }
 
@@ -225,10 +237,10 @@ class ALG3 {
         A[j] = tmp;
     }
 
-    public static void ejecutar(int arreglo[]) {
+    public static void ejecutar(int[] arreglo) {
         long inicio = System.currentTimeMillis();
         System.out.println("Moda: " + moda(arreglo));
         long fin = System.currentTimeMillis();
-        System.out.println("Tiempo ALG3: " + (fin - inicio) + " ms");
+        System.out.println("Tiempo ALG3 (lineal refinado sin heap): " + (fin - inicio) + " ms");
     }
 }
