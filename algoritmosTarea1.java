@@ -15,9 +15,9 @@ public class algoritmosTarea1 {
             System.out.println("Porte del arreglo: " + size);
             System.out.println("=================================");
 
-            // System.out.println("Algoritmo 1");
-            // ALG1.ejecutar(arreglo1);
-            // System.out.println("---------------------------------");
+            System.out.println("Algoritmo 1");
+            ALG1.ejecutar(arreglo1);
+            System.out.println("---------------------------------");
 
             System.out.println("Algoritmo 2");
             System.out.println("ascendente");
